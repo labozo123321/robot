@@ -22,13 +22,12 @@ env = make_env()
 
 policy.reset()
 obs, _ = env.reset(seed=ENV_SEED)
-pixels, agent_pos, actions, frames = [], [], [], {}
+pixels, agent_pos, actions, renders = [], [], [], []
 
 for step in range(LAST_STEP + 1):
     pixels.append(obs["pixels"])
     agent_pos.append(obs["agent_pos"])
-    if step in SAVE_STEPS:
-        frames[step] = env.render()  # 384x384 picture of the game at this moment
+    renders.append(env.render())  # 384x384 picture of the game at this moment
     if step == LAST_STEP:
         break
     with torch.no_grad():
@@ -43,10 +42,11 @@ for step in range(LAST_STEP + 1):
 os.makedirs(DATA_DIR, exist_ok=True)
 for step in SAVE_STEPS:
     path = os.path.join(DATA_DIR, f"seed{ENV_SEED}_step{step:03d}_obs.npz")
-    np.savez_compressed(path, pixels=pixels[step], agent_pos=agent_pos[step], render=frames[step], step=step)
+    np.savez_compressed(path, pixels=pixels[step], agent_pos=agent_pos[step], render=renders[step], step=step)
     print(f"Saved {path}   agent_pos={agent_pos[step]}")
 
 path = os.path.join(DATA_DIR, f"seed{ENV_SEED}_episode_steps000-{LAST_STEP:03d}.npz")
 np.savez_compressed(path, pixels=np.array(pixels), agent_pos=np.array(agent_pos), actions=np.array(actions),
+                    renders=np.array(renders),
                     env_seed=ENV_SEED, torch_seed=TORCH_SEED)
 print(f"Saved {path}")

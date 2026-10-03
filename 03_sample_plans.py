@@ -1,6 +1,6 @@
-"""Step 3: sample many plans from step 80 and sort them into two routes.
+"""Step 3: sample many plans from one game step (default 80) and sort them into two routes.
 
-Usage:  python 03_sample_plans_step80.py --n 32
+Usage:  python 03_sample_plans.py --step 80 --n 32
 """
 
 import argparse
@@ -17,23 +17,21 @@ from sklearn.metrics import silhouette_score
 
 from pusht_common import DATA_DIR, FIGURES_DIR, load_policy, sample_plans
 
-STEP = 80
 ROUTE_COLORS = ["#2a78d6", "#eb6834"]  # blue = route A (bigger), orange = route B
 GAME_TO_PICTURE = 384 / 512  # game board is 512x512, the saved picture is 384x384
 
 parser = argparse.ArgumentParser()
+parser.add_argument("--step", type=int, default=80, help="game step to sample plans from")
 parser.add_argument("--n", type=int, default=32, help="number of plans to sample")
 parser.add_argument("--seed", type=int, default=0, help="random seed for the denoising noise")
 args = parser.parse_args()
+STEP = args.step
 
 
-def load_obs(step):
-    d = np.load(os.path.join(DATA_DIR, f"seed0_step{step:03d}_obs.npz"))
-    return {"pixels": d["pixels"], "agent_pos": d["agent_pos"]}, d["render"]
-
-
-prev_obs, _ = load_obs(STEP - 1)
-cur_obs, picture = load_obs(STEP)
+episode = np.load(os.path.join(DATA_DIR, "seed0_episode_steps000-100.npz"))
+prev_obs = {"pixels": episode["pixels"][STEP - 1], "agent_pos": episode["agent_pos"][STEP - 1]}
+cur_obs = {"pixels": episode["pixels"][STEP], "agent_pos": episode["agent_pos"][STEP]}
+picture = episode["renders"][STEP]  # 384x384 picture of the game at this step
 
 policy, preprocess, postprocess = load_policy()
 torch.manual_seed(args.seed)
