@@ -33,3 +33,8 @@ Network needs `pypi.org`, `files.pythonhosted.org` and `huggingface.co`.
   1-3 px at most steps, rising to 14-17 px at steps 86-87 (one wider fan around the
   right side of the T, not two routes). See `data/seed0_scan_steps065-095_n16.csv`
   and `figures/seed0_step087_routes_n32.png`.
+- **Scan of steps 1-64 (16 plans each):** no clear split. Gaps of 1-11 px except
+  step 37 (19.6 px). At step 37 with 64 plans, endpoints form two small clumps
+  ~17 px apart (77% / 23%, silhouette 0.65), but both go the same way (down
+  across the T's crossbar), so it is a small fork, not two different routes.
+  See `figures/seed0_step037_routes_n64.png`.
